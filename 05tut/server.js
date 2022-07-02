@@ -13,9 +13,13 @@ const PORT = process.env.PORT || 3500
 
 const serveFile = async (filePath, contentType, response) => {
   try {
-    const data = await fsPromises.readFile(filePath, 'utf8')
+    const rawData = await fsPromises.readFile(filePath, 'utf8')
+    const data =
+      contentType === 'application/json' ? JSON.parse(rawData) : rawData
     response.writeHead(200, { 'Content-Type': contentType })
-    response.end(data)
+    response.end(
+      contentType === 'application/json' ? JSON.stringify(data) : data
+    )
   } catch (err) {
     console.log(err)
     response.statusCode = 500
@@ -50,11 +54,11 @@ const server = http.createServer((req, res) => {
     default:
       contentType = 'text/html'
   }
-  console.log(contentType);
+  console.log(contentType)
   let filePath =
     req.url === '/' && contentType === 'text/html'
       ? path.join(__dirname, 'views', 'index.html')
-      : contentType === 'text/html' && req.url.slice(-1)
+      : contentType === 'text/html' && req.url.slice(-1) === '/'
       ? path.join(__dirname, 'views', req.url, 'index.html')
       : contentType === 'text/html'
       ? path.join(__dirname, 'views', req.url)
@@ -62,7 +66,7 @@ const server = http.createServer((req, res) => {
 
   //makes .html extension not required in the browser
   if (!extension && req.url.slice(-1) !== '/') filePath += '.html'
-
+  console.log(filePath)
   const fileExist = fs.existsSync(filePath)
 
   if (fileExist) {
@@ -70,7 +74,7 @@ const server = http.createServer((req, res) => {
   } else {
     //404
     //301 redirect
-    console.log(path.parse(filePath));
+    console.log(path.parse(filePath))
     switch (path.parse(filePath).base) {
       case 'old-page.html':
         res.writeHead(301, { Location: '/new-page.html' })
