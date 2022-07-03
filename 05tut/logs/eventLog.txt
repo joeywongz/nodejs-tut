@@ -1,3 +1,0 @@
-20220702	16:53:09	bb64e82c-96fb-487f-b438-96fa164cdd36	Log event emitted
-}20220702	16:54:05	06044190-e90b-4f00-8dbb-bfe9a2f8b8e0	Log event emitted
-}20220702	16:54:18	928013ef-303b-49c3-8f9e-5c7f0d6afa7d	Log event emitted

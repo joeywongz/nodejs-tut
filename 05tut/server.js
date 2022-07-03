@@ -8,12 +8,16 @@ const EventEmitter = require('events')
 class Emitter extends EventEmitter {}
 // initialize object
 const myEmitter = new Emitter()
+myEmitter.on('log', (msg, fileName) => logEvents(msg, fileName))
 
 const PORT = process.env.PORT || 3500
 
 const serveFile = async (filePath, contentType, response) => {
   try {
-    const rawData = await fsPromises.readFile(filePath, 'utf8')
+    const rawData = await fsPromises.readFile(
+      filePath,
+      !contentType.includes('image') ? 'utf8' : ''
+    )
     const data =
       contentType === 'application/json' ? JSON.parse(rawData) : rawData
     response.writeHead(200, { 'Content-Type': contentType })
@@ -22,6 +26,7 @@ const serveFile = async (filePath, contentType, response) => {
     )
   } catch (err) {
     console.log(err)
+    myEmitter.emit('log', `${err.name}: ${err.message}`, 'errLog.txt')
     response.statusCode = 500
     response.end()
   }
@@ -31,6 +36,7 @@ const server = http.createServer((req, res) => {
   console.log(req.url, req.method)
   const extension = path.extname(req.url)
   let contentType
+  myEmitter.emit('log', `${req.url}: ${req.method}`, 'reqLog.txt')
 
   switch (extension) {
     case '.css':
